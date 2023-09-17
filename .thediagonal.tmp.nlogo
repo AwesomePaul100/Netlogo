@@ -38,18 +38,15 @@ to go
       set breed embers ]
   fade-embers
 
-
   tick
 end
 
 to create-grid
-  ;; grid width has to be divisible by the grid-size
-  if (max-pxcor - min-pxcor) mod grid-size != 0 [error "grid width must be divisible by grid size"]
-  let cell-size (max-pxcor - min-pxcor) / grid-size
+  let cell-size floor((max-pxcor - min-pxcor) / grid-size)
   let x min-pxcor + cell-size
   let y min-pycor + cell-size
 
-  repeat grid-size  [
+  repeat grid-size - 1 [
     ask patches with [pxcor = x] [
       ; increment when a tree is chopped
       if pcolor = green [set chopped chopped + 1]
@@ -58,7 +55,7 @@ to create-grid
     set x x + cell-size
   ]
 
-  repeat grid-size [
+  repeat grid-size - 1 [
     ask patches with [pycor = y] [
       ; increment when a tree is chopped
       if pcolor = green [set chopped chopped + 1]
@@ -185,7 +182,7 @@ density
 density
 0.0
 99.0
-80.0
+99.0
 1.0
 1
 %
@@ -226,10 +223,10 @@ NIL
 1
 
 MONITOR
-40
-184
-166
-229
+16
+218
+142
+263
 percent of trees lost
 ((burned-trees + chopped) / initial-trees) * 100
 2
@@ -242,16 +239,16 @@ INPUTBOX
 173
 363
 grid-size
-10.0
+125.0
 1
 0
 Number
 
 MONITOR
 8
-247
 162
-292
+162
+207
 percent of trees chopped
 (chopped / initial-trees) * 100
 2
