@@ -64,11 +64,12 @@ to init-ctrl
   set initial-trees count patches with [pcolor = green]
 
   ask one-of patches [ignite]
+  set burned-trees 0
   reset-ticks
 end
 
 to run-ctrl
-  set burned-trees 0
+
   go
 end
 
@@ -236,10 +237,10 @@ ticks
 30.0
 
 MONITOR
-799
-71
-943
-116
+724
+72
+877
+117
 percent of of trees burned
 (burned-trees / initial-trees)\n* 100
 2
@@ -255,7 +256,7 @@ density
 density
 0.0
 99.0
-99.0
+65.0
 1.0
 1
 %
@@ -296,10 +297,10 @@ NIL
 1
 
 MONITOR
-800
-160
-943
-205
+724
+161
+878
+206
 percent of trees lost
 ((burned-trees + chopped) / initial-trees) * 100
 2
@@ -318,9 +319,9 @@ grid-size
 Number
 
 MONITOR
-799
+724
 116
-943
+878
 161
 percent of trees chopped
 (chopped / initial-trees) * 100
