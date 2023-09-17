@@ -44,12 +44,12 @@ end
 
 to create-grid
   ;; grid width has to be divisible by the grid-size
-  if (max-pxcor - min-pxcor) % grid-size != 0 [error "g
+  if (max-pxcor - min-pxcor) mod grid-size != 0 [error "grid width must be divisible by grid size"]
   let cell-size (max-pxcor - min-pxcor) / grid-size
-  let x min-pxcor
-  let y min-pycor
+  let x min-pxcor + cell-size
+  let y min-pycor + cell-size
 
-  repeat grid-size [
+  repeat grid-size  [
     ask patches with [pxcor = x] [
       ; increment when a tree is chopped
       if pcolor = green [set chopped chopped + 1]
@@ -185,7 +185,7 @@ density
 density
 0.0
 99.0
-90.0
+80.0
 1.0
 1
 %
@@ -242,7 +242,7 @@ INPUTBOX
 173
 363
 grid-size
-100.0
+10.0
 1
 0
 Number
