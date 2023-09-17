@@ -44,6 +44,7 @@ end
 
 to create-grid
   ;; grid width has to be divisible by the grid-size
+  if (max-pxcor - min-pxcor) % grid-size != 0 [error "g
   let cell-size (max-pxcor - min-pxcor) / grid-size
   let x min-pxcor
   let y min-pycor
@@ -184,7 +185,7 @@ density
 density
 0.0
 99.0
-99.0
+90.0
 1.0
 1
 %
@@ -241,7 +242,7 @@ INPUTBOX
 173
 363
 grid-size
-10.0
+100.0
 1
 0
 Number
