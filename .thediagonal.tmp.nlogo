@@ -2,31 +2,106 @@ globals [
   initial-trees   ;; how many trees (green patches) we started with
   burned-trees    ;; how many have burned so far
   chopped
+  avg-percent-lost
+  curr-run
 ]
 
 breed [fires fire]    ;; bright red turtles -- the leading edge of the fire
 breed [embers ember]  ;; turtles gradually fading from red to near black
 
-to setup
-  clear-all
+; contains common logic between setup and reset
+to init
   set-default-shape turtles "square"
+
   ;; make some green trees
-
-  ; Create a visual effect of diagonal lines
-  ; create-diagonal-lines
-
   ask patches with [(random-float 100) < density] [
     set pcolor green
   ]
 
+  set initial-trees count patches with [pcolor = green]
   create-grid
 
   ;; Choose a point to ignite
   ask one-of patches [ ignite ]
   ;; set tree counts
-  set initial-trees count patches with [pcolor = green]
+
   set burned-trees 0
+end
+
+to setup
+  clear-all
+  init
   reset-ticks
+end
+
+; reset is just using setup
+; while saving some globals
+; and not resetting the ticks
+; mid-experiment
+to reset
+  ; preserve globals in local variables
+  ; before clear-all is used
+  let gs grid-size
+  let aplost avg-percent-lost
+  let cr curr-run
+
+  ;clear-turtles
+  ;clear-patches
+  ;clear-drawing
+  ;clear-all-plots
+  ;clear-output
+  set grid-size gs
+  set avg-percent-lost aplost
+  set curr-run cr
+  init
+  ;reset-ticks
+end
+
+to init-ctrl
+  clear-all
+  ask patches with [(random-float 100) < density] [
+    set pcolor green
+  ]
+  set initial-trees count patches with [pcolor = green]
+
+  ask one-of patches [ignite]
+  reset-ticks
+end
+
+to run-ctrl
+  set burned-trees 0
+  go
+end
+
+to run-exp
+  ; run control experiment num-runs times and obtain its average
+  ; run binary search to find optimal grid-size
+  ; print that out and maybe plot it if you'd like
+
+  show (word "current run #: " curr-run)
+  ; reset when not setup
+  ifelse curr-run < runs [
+    if curr-run != 0 [reset]
+    while [any? turtles] [
+      ask fires [
+        ask neighbors4 with [pcolor = green]
+        [ignite]
+        set breed embers
+      ]
+      fade-embers
+      tick
+    ]
+
+  ; report stats
+  let perc-lost ((burned-trees + chopped) / initial-trees) * 100
+  show (word "% burned: " ((burned-trees / initial-trees) * 100))
+  set avg-percent-lost avg-percent-lost + perc-lost
+  set curr-run curr-run + 1
+  ] [
+    set avg-percent-lost avg-percent-lost / runs
+    show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    stop
+  ]
 end
 
 to go
@@ -37,7 +112,6 @@ to go
         [ ignite ]
       set breed embers ]
   fade-embers
-
   tick
 end
 
@@ -163,10 +237,10 @@ ticks
 30.0
 
 MONITOR
-7
-118
-168
-163
+799
+71
+943
+116
 percent of of trees burned
 (burned-trees / initial-trees)\n* 100
 2
@@ -182,7 +256,7 @@ density
 density
 0.0
 99.0
-99.0
+70.0
 1.0
 1
 %
@@ -223,10 +297,10 @@ NIL
 1
 
 MONITOR
-16
-218
-142
-263
+800
+160
+943
+205
 percent of trees lost
 ((burned-trees + chopped) / initial-trees) * 100
 2
@@ -234,26 +308,88 @@ percent of trees lost
 11
 
 INPUTBOX
-18
-303
-173
-363
+26
+294
+89
+354
 grid-size
-125.0
+25.0
 1
 0
 Number
 
 MONITOR
-8
-162
-162
-207
+799
+116
+943
+161
 percent of trees chopped
 (chopped / initial-trees) * 100
 2
 1
 11
+
+BUTTON
+46
+119
+162
+153
+run experiment
+run-exp
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+INPUTBOX
+26
+353
+102
+415
+runs
+100.0
+1
+0
+Number
+
+BUTTON
+59
+231
+151
+264
+run control
+run-ctrl
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+0
+
+BUTTON
+59
+198
+144
+231
+init-ctrl
+init-ctrl\n
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
