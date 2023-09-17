@@ -2,9 +2,6 @@ globals [
   initial-trees   ;; how many trees (green patches) we started with
   burned-trees    ;; how many have burned so far
   chopped
-  total-patches ; New global variable to track the total number of patches
-  percentage-green
-  total-green-cells
 ]
 
 breed [fires fire]    ;; bright red turtles -- the leading edge of the fire
@@ -16,20 +13,16 @@ to setup
   ;; make some green trees
 
   ; Create a visual effect of diagonal lines
-  ;create-diagonal-lines
+  ; create-diagonal-lines
 
   ask patches with [(random-float 100) < density] [
     set pcolor green
   ]
-  set total-patches count patches
-  ;; percent
-  print (word "Percentage of green cells: " percentage-green "%")
+
   create-grid
-  ;;percent
-  print (word "Percentage of green cells: " percentage-green "%")
+
   ;; Choose a point to ignite
-  ask one-of patches
-    [ ignite ]
+  ask one-of patches [ ignite ]
   ;; set tree counts
   set initial-trees count patches with [pcolor = green]
   set burned-trees 0
@@ -44,47 +37,54 @@ to go
         [ ignite ]
       set breed embers ]
   fade-embers
+
+
   tick
 end
 
-to percent
-  ;;let num-patches-to-check count patches * percentage / 100
-  ;;let patches-to-check n-of num-patches-to-check patches
-  ; Check if there are any green cells left before calculating the percentage
-  ask patches [
-    if any? patches with [pcolor = green] [
-    set total-green-cells count patches with [pcolor = green]
-    set percentage-green (total-green-cells / total-patches) * 100
-  ]
-  ]
-end
-
 to create-grid
-  ;; let grid-size 10
+  ;; grid width has to be divisible by the grid-size
   let cell-size (max-pxcor - min-pxcor) / grid-size
   let x min-pxcor
   let y min-pycor
 
   repeat grid-size [
-
-      ask patches with [pxcor = x] [
+    ask patches with [pxcor = x] [
+      ; increment when a tree is chopped
+      if pcolor = green [set chopped chopped + 1]
       set pcolor orange
-      set chopped chopped + 1 ; Increment count
-      ]
-      set x x + cell-size
-
+    ]
+    set x x + cell-size
   ]
-  repeat grid-size [
 
-      ask patches with [pycor = y] [
+  repeat grid-size [
+    ask patches with [pycor = y] [
+      ; increment when a tree is chopped
+      if pcolor = green [set chopped chopped + 1]
       set pcolor orange
-      set chopped chopped + 1 ; Increment count
-      ]
-      set y y + cell-size
+    ]
+    set y y + cell-size
 
     ;;let percentage-turned-yellow (green-turned-yellow-count / total-green-cells) * 100
     ;;print (word "Percentage of green cells turned yellow: " percentage-turned-yellow "%")
   ]
+end
+
+;; creates the fire turtles
+to ignite  ;; patch procedure
+  sprout-fires 1
+    [ set color red ]
+  set pcolor black
+  set burned-trees burned-trees + 1
+end
+
+;; achieve fading color effect for the fire as it burns
+to fade-embers
+  ask embers
+    [ set color color - 0.3  ;; make red darker
+      if color < red - 3.5     ;; are we almost at black?
+        [ set pcolor color
+          die ] ]
 end
 
 to create-grid1
@@ -134,26 +134,6 @@ to create-diagonal-lines
     set line-ycor line-ycor + line-spacing
   ]
 end
-
-
-;; creates the fire turtles
-to ignite  ;; patch procedure
-  sprout-fires 1
-    [ set color red ]
-  set pcolor black
-  set burned-trees burned-trees + 1
-end
-
-;; achieve fading color effect for the fire as it burns
-to fade-embers
-  ask embers
-    [ set color color - 0.3  ;; make red darker
-      if color < red - 3.5     ;; are we almost at black?
-        [ set pcolor color
-          die ] ]
-end
-
-
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -185,13 +165,13 @@ ticks
 30.0
 
 MONITOR
-43
-131
-158
-176
-percent burned
+7
+118
+168
+163
+percent of of trees burned
 (burned-trees / initial-trees)\n* 100
-1
+2
 1
 11
 
@@ -247,24 +227,35 @@ NIL
 MONITOR
 40
 184
-160
+166
 229
-Total Percent lost
-(burned-trees + green-turned-yellow-count / initial-trees)\n* 100
-17
+percent of trees lost
+((burned-trees + chopped) / initial-trees) * 100
+2
 1
 11
 
 INPUTBOX
-135
-278
-290
-338
+18
+303
+173
+363
 grid-size
-15.0
+10.0
 1
 0
 Number
+
+MONITOR
+8
+247
+162
+292
+percent of trees chopped
+(chopped / initial-trees) * 100
+2
+1
+11
 
 @#$#@#$#@
 ## WHAT IS IT?
