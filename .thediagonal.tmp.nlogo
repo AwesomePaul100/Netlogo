@@ -28,6 +28,23 @@ to init
   set burned-trees 0
 end
 
+to init_original
+  set-default-shape turtles "square"
+
+  ;; make some green trees
+  ask patches with [(random-float 100) < density] [
+    set pcolor green
+  ]
+
+  set initial-trees count patches with [pcolor = green]
+
+  ;; Choose a point to ignite
+  ask one-of patches [ ignite ]
+  ;; set tree counts
+
+  set burned-trees 0
+end
+
 to setup
   clear-all
   init
@@ -56,6 +73,24 @@ to reset
   ;reset-ticks
 end
 
+to reset_original
+  ; preserve globals in local variables
+  ; before clear-all is used
+  let gs grid-size
+  let aplost avg-percent-lost
+  let cr curr-run
+  ;clear-turtles
+  ;clear-patches
+  ;clear-drawing
+  ;clear-all-plots
+  ;clear-output
+  set grid-size gs
+  set avg-percent-lost aplost
+  set curr-run cr
+  init_original
+  ;reset-ticks
+end
+
 to init-ctrl
   clear-all
   ask patches with [(random-float 100) < density] [
@@ -70,7 +105,8 @@ end
 
 to run-ctrl
 
-  go
+  if curr-run < runs +  [go]
+
 end
 
 to run-exp
@@ -105,15 +141,33 @@ to run-exp
 end
 
 to go
-  if not any? turtles  ;; either fires or embers
-    [ stop ]
-  ask fires
-    [ ask neighbors4 with [pcolor = green]
-        [ ignite ]
-      set breed embers ]
-  fade-embers
-  tick
+  show (word "current run #: " curr-run)
+  ; reset when not setup
+  ifelse curr-run < runs [
+    if curr-run != 0 [reset_original]
+    while [any? turtles] [
+      ask fires [
+        ask neighbors4 with [pcolor = green]
+        [ignite]
+        set breed embers
+      ]
+      fade-embers
+      tick
+    ]
+
+  ; report stats
+  let perc-lost ((burned-trees + chopped) / initial-trees) * 100
+  show (word "% burned: " ((burned-trees / initial-trees) * 100))
+  set avg-percent-lost avg-percent-lost + perc-lost
+  set curr-run curr-run + 1
+  ] [
+    set avg-percent-lost avg-percent-lost / runs
+    show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    stop
+  ]
+
 end
+
 
 to create-grid
   let cell-size floor((max-pxcor - min-pxcor) / grid-size)
@@ -256,7 +310,7 @@ density
 density
 0.0
 99.0
-65.0
+54.0
 1.0
 1
 %
@@ -352,7 +406,7 @@ INPUTBOX
 102
 415
 runs
-5.0
+2.0
 1
 0
 Number
