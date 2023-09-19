@@ -82,7 +82,7 @@ to run-exp
       set stdev (standard-deviation the-list)
     ]
 
-    show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    ;;show (word "average percent lost: " (precision avg-percent-lost 3) "%")
     show (word "standard deviation: " (precision stdev 3))
     report-results stdev
     stop
@@ -218,7 +218,7 @@ density
 density
 0.0
 99.0
-89.0
+83.0
 1.0
 1
 %
@@ -297,7 +297,7 @@ INPUTBOX
 102
 415
 runs
-2.0
+10.0
 1
 0
 Number
