@@ -27,6 +27,7 @@ to init
   ;; set tree counts
 
   set burned-trees 0
+
 end
 
 to init_original
@@ -132,14 +133,15 @@ to run-exp
   ; report stats
   let perc-lost ((burned-trees + chopped) / initial-trees) * 100
   show (word "% burned: " ((burned-trees / initial-trees) * 100))
+   print perc-lost
   set avg-percent-lost avg-percent-lost + perc-lost
-
-    set the-list lput perc-lost the-list
+  set the-list lput perc-lost the-list
   set curr-run curr-run + 1
   ] [
     set avg-percent-lost avg-percent-lost / runs
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
     show (word "standard deviation: " (standard-deviation the-list))
+     print the-list
     stop
   ]
 end
@@ -317,7 +319,7 @@ density
 density
 0.0
 99.0
-59.0
+99.0
 1.0
 1
 %
@@ -413,7 +415,7 @@ INPUTBOX
 102
 415
 runs
-5.0
+10.0
 1
 0
 Number

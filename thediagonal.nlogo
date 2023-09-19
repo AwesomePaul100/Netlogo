@@ -20,6 +20,7 @@ to init
   ]
 
   set initial-trees count patches with [pcolor = green]
+  set chopped 0
   create-grid
 
   ;; Choose a point to ignite
@@ -132,8 +133,9 @@ to run-exp
   ; report stats
   let perc-lost ((burned-trees + chopped) / initial-trees) * 100
   show (word "% burned: " ((burned-trees / initial-trees) * 100))
+   print perc-lost
   set avg-percent-lost avg-percent-lost + perc-lost
-    set the-list lput perc-lost the-list
+  set the-list lput perc-lost the-list
   set curr-run curr-run + 1
   ] [
     set avg-percent-lost avg-percent-lost / runs
@@ -317,7 +319,7 @@ density
 density
 0.0
 99.0
-59.0
+99.0
 1.0
 1
 %
@@ -413,7 +415,7 @@ INPUTBOX
 102
 415
 runs
-5.0
+10.0
 1
 0
 Number
