@@ -4,6 +4,7 @@ globals [
   chopped
   avg-percent-lost
   curr-run
+  the-list
 ]
 
 breed [fires fire]    ;; bright red turtles -- the leading edge of the fire
@@ -30,7 +31,6 @@ end
 
 to init_original
   set-default-shape turtles "square"
-
   ;; make some green trees
   ask patches with [(random-float 100) < density] [
     set pcolor green
@@ -48,6 +48,7 @@ end
 to setup
   clear-all
   init
+  set the-list []
   reset-ticks
 end
 
@@ -93,6 +94,7 @@ end
 
 to init-ctrl
   clear-all
+  set the-list []
   ask patches with [(random-float 100) < density] [
     set pcolor green
   ]
@@ -105,8 +107,7 @@ end
 
 to run-ctrl
 
-  if curr-run < runs +  [go]
-
+  go
 end
 
 to run-exp
@@ -132,10 +133,13 @@ to run-exp
   let perc-lost ((burned-trees + chopped) / initial-trees) * 100
   show (word "% burned: " ((burned-trees / initial-trees) * 100))
   set avg-percent-lost avg-percent-lost + perc-lost
+
+    set the-list lput perc-lost the-list
   set curr-run curr-run + 1
   ] [
     set avg-percent-lost avg-percent-lost / runs
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    show (word "standard deviation: " (standard-deviation the-list))
     stop
   ]
 end
@@ -156,18 +160,21 @@ to go
     ]
 
   ; report stats
-  let perc-lost ((burned-trees + chopped) / initial-trees) * 100
+  let perc-lost ((burned-trees) / initial-trees) * 100
   show (word "% burned: " ((burned-trees / initial-trees) * 100))
   set avg-percent-lost avg-percent-lost + perc-lost
+  set the-list lput perc-lost the-list
   set curr-run curr-run + 1
   ] [
     set avg-percent-lost avg-percent-lost / runs
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    print the-list
+    show (word "standard deviation: " (standard-deviation the-list))
+    ;;show standard-deviation the-list
     stop
   ]
 
 end
-
 
 to create-grid
   let cell-size floor((max-pxcor - min-pxcor) / grid-size)
@@ -310,7 +317,7 @@ density
 density
 0.0
 99.0
-54.0
+59.0
 1.0
 1
 %
@@ -406,7 +413,7 @@ INPUTBOX
 102
 415
 runs
-2.0
+5.0
 1
 0
 Number
@@ -417,7 +424,7 @@ BUTTON
 151
 264
 run control
-run-ctrl
+go
 T
 1
 T
