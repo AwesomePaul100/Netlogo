@@ -106,11 +106,6 @@ to init-ctrl
   reset-ticks
 end
 
-to run-ctrl
-
-  go
-end
-
 to run-exp
   ; run control experiment num-runs times and obtain its average
   ; run binary search to find optimal grid-size
@@ -373,10 +368,10 @@ runs
 Number
 
 BUTTON
-59
-231
-151
-264
+36
+494
+128
+527
 run control
 go
 T
@@ -390,10 +385,10 @@ NIL
 0
 
 BUTTON
-59
-198
-144
-231
+36
+461
+121
+494
 init-ctrl
 init-ctrl\n
 NIL
@@ -405,6 +400,33 @@ NIL
 NIL
 NIL
 1
+
+BUTTON
+35
+524
+162
+557
+optimize-grid-size
+NIL
+NIL
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
+
+CHOOSER
+27
+155
+165
+200
+group
+group
+"Control" "Experimental"
+0
 
 @#$#@#$#@
 ## WHAT IS IT?
