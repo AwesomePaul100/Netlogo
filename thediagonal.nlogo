@@ -10,42 +10,6 @@ globals [
 breed [fires fire]    ;; bright red turtles -- the leading edge of the fire
 breed [embers ember]  ;; turtles gradually fading from red to near black
 
-; contains common logic between setup and reset
-to init
-  set-default-shape turtles "square"
-
-  ;; make some green trees
-  ask patches with [(random-float 100) < density] [
-    set pcolor green
-  ]
-
-  set initial-trees count patches with [pcolor = green]
-  set chopped 0
-  create-grid
-
-  ;; Choose a point to ignite
-  ask one-of patches [ ignite ]
-  ;; set tree counts
-
-  set burned-trees 0
-end
-
-to init_original
-  set-default-shape turtles "square"
-  ;; make some green trees
-  ask patches with [(random-float 100) < density] [
-    set pcolor green
-  ]
-
-  set initial-trees count patches with [pcolor = green]
-
-  ;; Choose a point to ignite
-  ask one-of patches [ ignite ]
-  ;; set tree counts
-
-  set burned-trees 0
-end
-
 to setup
   clear-all
   init
@@ -53,99 +17,43 @@ to setup
   reset-ticks
 end
 
-; reset is just using setup
-; while saving some globals
-; and not resetting the ticks
-; mid-experiment
+
+; reset the experiment and relevant global variables
 to reset
-  ; preserve globals in local variables
-  ; before clear-all is used
-  let gs grid-size
-  let aplost avg-percent-lost
-  let cr curr-run
-  ;clear-turtles
-  ;clear-patches
+  ; These other clears don't
+  ; seem relevant to our experiment
+  ; but it doesn't hurt to call them regardless
+  clear-turtles
   ;clear-drawing
-  ;clear-all-plots
-  ;clear-output
-  set grid-size gs
-  set avg-percent-lost aplost
-  set curr-run cr
-  init
-  ;reset-ticks
-end
+  clear-output
 
-to reset_original
-  ; preserve globals in local variables
-  ; before clear-all is used
-  let gs grid-size
-  let aplost avg-percent-lost
-  let cr curr-run
-  ;clear-turtles
-  ;clear-patches
-  ;clear-drawing
-  ;clear-all-plots
-  ;clear-output
-  set grid-size gs
-  set avg-percent-lost aplost
-  set curr-run cr
-  init_original
-  ;reset-ticks
-end
+  ; I pretty much only need this clear
+  clear-patches
 
-to init-ctrl
-  clear-all
-  set the-list []
-  ask patches with [(random-float 100) < density] [
-    set pcolor green
-  ]
-  set initial-trees count patches with [pcolor = green]
-
-  ask one-of patches [ignite]
+  set initial-trees 0
   set burned-trees 0
-  reset-ticks
+  set chopped 0
+
+  init
+end
+
+to run-once
+  if not any? turtles [
+    stop
+  ]
+  ask fires [
+    ask neighbors4 with [pcolor = green] [ignite]
+    set breed embers
+  ]
+  fade-embers
+  tick
 end
 
 to run-exp
-  ; run control experiment num-runs times and obtain its average
-  ; run binary search to find optimal grid-size
-  ; print that out and maybe plot it if you'd like
-
   show (word "current run #: " curr-run)
   ; reset when not setup
   ifelse curr-run < runs [
     if curr-run != 0 [reset]
-    while [any? turtles] [
-      ask fires [
-        ask neighbors4 with [pcolor = green]
-        [ignite]
-        set breed embers
-      ]
-      fade-embers
-      tick
-    ]
-
-  ; report stats
-  let perc-lost ((burned-trees + chopped) / initial-trees) * 100
-  show (word "% burned: " ((burned-trees / initial-trees) * 100))
-   print perc-lost
-  set avg-percent-lost avg-percent-lost + perc-lost
-  set the-list lput perc-lost the-list
-  set curr-run curr-run + 1
-  ] [
-    set avg-percent-lost avg-percent-lost / runs
-    show (word "average percent lost: " (precision avg-percent-lost 3) "%")
-    show (word "standard deviation: " precision(standard-deviation the-list) 3 )
-    ;;print the-list
-    stop
-  ]
-end
-
-to go
-  show (word "current run #: " curr-run)
-  ; reset when not setup
-  ifelse curr-run < runs [
-    if curr-run != 0 [reset_original]
     while [any? turtles] [
       ask fires [
         ask neighbors4 with [pcolor = green]
@@ -164,13 +72,57 @@ to go
   set curr-run curr-run + 1
   ] [
     set avg-percent-lost avg-percent-lost / runs
+
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
-    ;;print the-list
-    show (word "standard deviation: " precision (standard-deviation the-list) 3 )
-    ;;show standard-deviation the-list
+
+    let stdev 0
+    ifelse runs = 1 [
+      set stdev 0
+    ] [
+      set stdev (standard-deviation the-list)
+    ]
+
+    show (word "average percent lost: " (precision avg-percent-lost 3) "%")
+    show (word "standard deviation: " (precision stdev 3))
+    report-results stdev
     stop
   ]
+end
 
+to report-results [stdev]
+  file-open "results.csv"
+  if not file-exists? "results.csv" [
+    file-print (word "group,density(%),# runs,grid size,mean % loss,standard deviation")
+  ]
+
+  ifelse group = "Experimental" [
+    file-print (word group "," density "," runs "," grid-size "," (precision avg-percent-lost 3) "," (precision stdev 3))
+  ] [
+    file-print (word group "," density "," runs "," "N/A" "," (precision avg-percent-lost 3) "," (precision stdev 3))
+  ]
+  file-close
+end
+
+; contains common logic between setup and reset
+; plant forest -> create grid(if needed) -> choose a burn site
+to init
+  set-default-shape turtles "square"
+
+  ;; make some green trees
+  ask patches with [(random-float 100) < density] [
+    set pcolor green
+  ]
+
+  set initial-trees count patches with [pcolor = green]
+  set chopped 0
+
+  if group = "Experimental" [create-grid]
+
+  ;; Choose a point to ignite
+  ask one-of patches [ ignite ]
+  ;; set tree counts
+
+  set burned-trees 0
 end
 
 to create-grid
@@ -249,7 +201,7 @@ ticks
 MONITOR
 724
 72
-883
+878
 117
 percent of trees burned
 (burned-trees / initial-trees)\n* 100
@@ -266,19 +218,19 @@ density
 density
 0.0
 99.0
-41.0
+89.0
 1.0
 1
 %
 HORIZONTAL
 
 BUTTON
-106
-79
-175
-115
-go
-go
+14
+151
+130
+187
+run experiment
+run-exp
 T
 1
 T
@@ -290,10 +242,10 @@ NIL
 0
 
 BUTTON
-26
-79
-96
-115
+14
+82
+84
+118
 setup
 setup
 NIL
@@ -339,73 +291,22 @@ percent of trees chopped
 1
 11
 
-BUTTON
-46
-119
-162
-153
-run experiment
-run-exp
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
 INPUTBOX
 26
 353
 102
 415
 runs
-100.0
+2.0
 1
 0
 Number
 
 BUTTON
-36
-494
-128
-527
-run control
-go
-T
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-0
-
-BUTTON
-36
-461
-121
-494
-init-ctrl
-init-ctrl\n
-NIL
-1
-T
-OBSERVER
-NIL
-NIL
-NIL
-NIL
-1
-
-BUTTON
-35
-524
-162
-557
+30
+437
+157
+470
 optimize-grid-size
 NIL
 NIL
@@ -419,14 +320,31 @@ NIL
 1
 
 CHOOSER
-27
-155
-165
-200
+18
+208
+156
+253
 group
 group
 "Control" "Experimental"
-0
+1
+
+BUTTON
+14
+116
+94
+149
+run once
+run-once
+T
+1
+T
+OBSERVER
+NIL
+NIL
+NIL
+NIL
+1
 
 @#$#@#$#@
 ## WHAT IS IT?
