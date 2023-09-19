@@ -221,54 +221,6 @@ to fade-embers
         [ set pcolor color
           die ] ]
 end
-
-to create-grid1
-  ;; let grid-size 10
-  let cell-size (max-pxcor - min-pxcor) / grid-size
-  let x min-pxcor
-  let y min-pycor
-
-  repeat grid-size [
-    repeat grid-size [
-      ask patches with [
-        pxcor >= x and pxcor <= (x + cell-size) and
-        pycor >= y and pycor <= (y + cell-size)
-      ] [
-        set pcolor black
-      ]
-      set x x + cell-size
-    ]
-    set y y + cell-size
-    set x min-pxcor
-  ]
-end
-
-to create-diagonal-lines
-  let num-lines 5
-  let line-spacing max-pxcor / (5 + 1)
-  print line-spacing
-  set line-spacing 10
-
-  let line-xcor min-pxcor
-  let line-ycor min-pycor
-
-  repeat num-lines [
-    create-turtles 1 [
-      setxy line-xcor line-ycor
-      set shape "line"
-      set color black
-      set size 0.5  ; Adjust the size as needed
-      pen-down
-      set heading 45  ; Diagonal angle
-      fd (max-pxcor - min-pxcor) * 1.5  ; Length of the line
-      pen-up
-      print "line"
-      print line-xcor
-    ]
-    set line-xcor line-xcor + line-spacing
-    set line-ycor line-ycor + line-spacing
-  ]
-end
 ; Copyright 1997 Uri Wilensky.
 ; See Info tab for full copyright and license.
 @#$#@#$#@
@@ -319,7 +271,7 @@ density
 density
 0.0
 99.0
-61.0
+41.0
 1.0
 1
 %
