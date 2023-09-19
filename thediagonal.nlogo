@@ -140,8 +140,8 @@ to run-exp
   ] [
     set avg-percent-lost avg-percent-lost / runs
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
-    show (word "standard deviation: " (standard-deviation the-list))
-     print the-list
+    show (word "standard deviation: " precision(standard-deviation the-list) 3 )
+    ;;print the-list
     stop
   ]
 end
@@ -170,8 +170,8 @@ to go
   ] [
     set avg-percent-lost avg-percent-lost / runs
     show (word "average percent lost: " (precision avg-percent-lost 3) "%")
-    print the-list
-    show (word "standard deviation: " (standard-deviation the-list))
+    ;;print the-list
+    show (word "standard deviation: " precision (standard-deviation the-list) 3 )
     ;;show standard-deviation the-list
     stop
   ]
@@ -319,7 +319,7 @@ density
 density
 0.0
 99.0
-99.0
+61.0
 1.0
 1
 %
@@ -415,7 +415,7 @@ INPUTBOX
 102
 415
 runs
-10.0
+100.0
 1
 0
 Number
